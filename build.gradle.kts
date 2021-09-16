@@ -21,7 +21,7 @@ dependencies {
 
   implementation("com.sedmelluq:lavaplayer:1.3.78")
   implementation("org.slf4j:slf4j-simple:1.7.32")
-  implementation("dev.kord:kord-core:0.8.x-SNAPSHOT")
+  implementation("dev.kord:kord-core:0.8.0-M5")
   implementation("com.github.sapher:youtubedl-java:1.+")
 
   testImplementation(kotlin("test"))

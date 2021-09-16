@@ -1,6 +1,5 @@
 package net.thomasclaxton.chappie.commands
 
-import PlayerManager
 import com.sapher.youtubedl.YoutubeDL
 import com.sapher.youtubedl.YoutubeDLRequest
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler
@@ -14,11 +13,8 @@ import dev.kord.core.Kord
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.channel.VoiceChannel
 import dev.kord.voice.AudioFrame
-import net.thomasclaxton.chappie.AudioHandler
 import net.thomasclaxton.chappie.Command
 import java.io.File
-import java.nio.file.Files
-import java.nio.file.Paths
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -38,12 +34,13 @@ object Play : Command {
     val queryParts = message.content.split(" ")
     val url = queryParts[1]
 
-
     val voiceChannel = client.getChannelOf<VoiceChannel>(Snowflake(276122839407656964))!!
 
     val playerManager = DefaultAudioPlayerManager()
 
-    val query = "ytsearch: rick roll"
+    AudioSourceManagers.registerRemoteSources(playerManager)
+
+    val query = "ytsearch: $url"
 
     val player = playerManager.createPlayer()
 
@@ -54,7 +51,9 @@ object Play : Command {
         }
 
         override fun playlistLoaded(playlist: AudioPlaylist?) {
-          TODO("Not yet implemented")
+          if (playlist != null) {
+            it.resume(playlist.tracks.first())
+          }
         }
 
         override fun noMatches() {
@@ -66,14 +65,17 @@ object Play : Command {
         }
       })
     }
+    player.playTrack(track)
 
     voiceChannel.connect {
       selfDeaf = true
-      player.playTrack(track)
+
+      audioProvider { AudioFrame.fromData(player.provide()?.data) }
     }
 
     message.channel.createMessage("playing track")
   }
+
 
   fun ytdl(url: String): String? {
     val ytdlPath: String = File("").absolutePath.plus("\\bin\\youtube-dl.exe")
